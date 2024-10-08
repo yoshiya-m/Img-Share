@@ -44,8 +44,8 @@ class DatabaseHelper
         $db = new MySQLWrapper();
         $stmt = $db->prepare(
             "
-            INSERT INTO images (file_name,share_path, delete_path, view_count) 
-            values (?, ?, ?, ?);"
+            INSERT INTO images (file_name,share_path, delete_path, view_count, last_viewed_at) 
+            values (?, ?, ?, ?, NOW());"
         );
 
         $stmt->bind_param("sssi", $newFileName, $sharePath, $deletePath, $viewCount);
