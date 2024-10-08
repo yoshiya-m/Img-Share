@@ -58,7 +58,7 @@ if (dropArea) {
         shareUrl.innerHTML = "";
         deleteUrl.innerHTML = "";
 
-        url = 'http://localhost:8000/create';
+        url = 'https://img-share.yoshm.com/create';
         const formData = new FormData();
         formData.append('image', targetFile);
         fetch(url, {
