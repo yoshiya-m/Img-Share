@@ -17,6 +17,7 @@ if (DatabaseHelper::isExpired($imgId)) {
     exit;
 }
 DatabaseHelper::addViewCount($imgId);
+DatabaseHelper::updateViewedDate($imgId);
 $viewCount = DatabaseHelper::getViewCount($imgId);
 use Helpers\Settings;
 

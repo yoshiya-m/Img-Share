@@ -90,7 +90,13 @@ class DatabaseHelper
 
         return;
     }
-
+    public static function updateViewedDate($sharePath): void {
+        $db = new MySQLWrapper();
+        $stmt = $db->prepare("UPDATE images SET last_viewed_at = NOW() WHERE share_path = ?");
+        $stmt->bind_param("s", $sharePath);
+        $stmt->execute();
+        return;
+    }
     public static function addViewCount($sharePath): void
     {
         $db = new MySQLWrapper();
@@ -134,7 +140,7 @@ class DatabaseHelper
         
         $ip_address = $_SERVER['REMOTE_ADDR'];
         if (!self::doesIpAddressExist($ip_address)) return true;
-        
+
         $db = new MySQLWrapper();
         $stmt = $db->prepare("SELECT * FROM request_logs WHERE ip_address = ?");
         $stmt->bind_param("s", $ip_address);
@@ -151,7 +157,6 @@ class DatabaseHelper
     public static function saveRequestLog(): void
     {
         $ip_address = $_SERVER['REMOTE_ADDR'];
-        $now = new DateTime();
         $db = new MySQLWrapper();
         $now = new DateTime();
         $now = $now->format('Y-m-d H:i:s');
@@ -166,6 +171,28 @@ class DatabaseHelper
         }
 
         $stmt->execute();
+        return;
+    }
+
+    public static function deleteUnaccecedImage(): void {
+        // imagesテーブルでnow()から10日以上アクセスされていない画像ファイルを削除
+        // is_expiredをtrueにする
+        $db = new MySQLWrapper();
+        $stmt = $db->prepare("UPDATE images SET is_expired = TRUE WHERE last_viewed_at < NOW() - INTERVAL 10 DAY");
+        $stmt->execute();
+
+        // expiredのデータをdeleteで削除する
+        $stmt = $db->prepare("SELECT * FROM images WHERE is_expired = TRUE");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $data = $result->fetch_all();
+        foreach($data as $row) {
+            $filename = $row["file_name"];
+            // delete
+            if (file_exists($filename)) {
+                unlink($filename);
+            }
+        }
         return;
     }
 }

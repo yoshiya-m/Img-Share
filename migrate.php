@@ -7,10 +7,10 @@ spl_autoload_register(function($class) {
     }
 });
 
-use Database\Migrations\CreateTableRequest_logs;
+use Database\Migrations\CreateTableImages;
 use Database\MySQLWrapper;
 
-$requesttMigration = new CreateTableRequest_logs();
+$requesttMigration = new CreateTableImages();
 $sql = $requesttMigration->up()[0];
 
 $db = new MySQLWrapper();
