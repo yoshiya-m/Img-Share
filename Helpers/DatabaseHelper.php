@@ -44,11 +44,11 @@ class DatabaseHelper
         $db = new MySQLWrapper();
         $stmt = $db->prepare(
             "
-            INSERT INTO images (file_name,share_path, delete_path, view_count, expired_at) 
-            values (?, ?, ?, ?, ?);"
+            INSERT INTO images (file_name,share_path, delete_path, view_count) 
+            values (?, ?, ?, ?);"
         );
 
-        $stmt->bind_param("sssis", $newFileName, $sharePath, $deletePath, $viewCount, $expireDate);
+        $stmt->bind_param("sssi", $newFileName, $sharePath, $deletePath, $viewCount);
         $stmt->execute();
         $basePath = Settings::env("BASE_URL");
 
@@ -86,7 +86,9 @@ class DatabaseHelper
         $stmt->execute();
         $result = $stmt->get_result();
         $filename = $result->fetch_assoc()["file_name"];
-        unlink($filename);
+        if (file_exists($filename)) {
+            unlink($filename);
+        }
 
         return;
     }
@@ -175,20 +177,17 @@ class DatabaseHelper
     }
 
     public static function deleteUnaccecedImage(): void {
-        // imagesテーブルでnow()から10日以上アクセスされていない画像ファイルを削除
-        // is_expiredをtrueにする
+
         $db = new MySQLWrapper();
         $stmt = $db->prepare("UPDATE images SET is_expired = TRUE WHERE last_viewed_at < NOW() - INTERVAL 10 DAY");
         $stmt->execute();
 
-        // expiredのデータをdeleteで削除する
         $stmt = $db->prepare("SELECT * FROM images WHERE is_expired = TRUE");
         $stmt->execute();
         $result = $stmt->get_result();
-        $data = $result->fetch_all();
+        $data = $result->fetch_all(MYSQLI_ASSOC);
         foreach($data as $row) {
             $filename = $row["file_name"];
-            // delete
             if (file_exists($filename)) {
                 unlink($filename);
             }

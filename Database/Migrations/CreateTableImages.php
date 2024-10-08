@@ -19,7 +19,6 @@ class CreateTableImages implements SchemaMigration
                 is_expired BOOLEAN DEFAULT FALSE,
                 UNIQUE INDEX unique_share_path (share_path),
                 UNIQUE INDEX unique_delete_path (delete_path),
-                expired_at DATETIME NOT NULL,
                 last_viewed_at DATETIME
 
             )"
