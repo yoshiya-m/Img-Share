@@ -131,7 +131,10 @@ class DatabaseHelper
     }
 
     public static function isRequestAllowed(): bool {
+        
         $ip_address = $_SERVER['REMOTE_ADDR'];
+        if (!self::doesIpAddressExist($ip_address)) return true;
+        
         $db = new MySQLWrapper();
         $stmt = $db->prepare("SELECT * FROM request_logs WHERE ip_address = ?");
         $stmt->bind_param("s", $ip_address);
